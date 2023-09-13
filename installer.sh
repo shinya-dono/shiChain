@@ -42,6 +42,7 @@ LOG_PATH=${LOG_PATH:-/var/log/shichain}
 INSTALL_USER=${INSTALL_USER:-nobody}
 
 mkdir -p "$INSTALL_PATH"
+mkdir -p "$LOG_PATH"
 
 IP="$(curl -s icanhazip.com)"
 
