@@ -44,7 +44,7 @@ INSTALL_USER=${INSTALL_USER:-nobody}
 mkdir -p "$INSTALL_PATH"
 mkdir -p "$LOG_PATH"
 
-IP="$(curl -s icanhazip.com)"
+IP="$(curl -4 -s icanhazip.com)"
 
 # Two very important variables
 TMP_DIRECTORY="$(mktemp -d)"
@@ -165,6 +165,19 @@ detect_user() {
   INSTALL_USER_GID="$(id -g $INSTALL_USER)"
 }
 
+port_in_use() {
+    local host="localhost"
+    local port="$1"
+    local timeout=1
+
+    # Try to establish a connection to the specified host and port
+    if (echo >/dev/tcp/$host/$port) &>/dev/null; then
+        return 0 # Port is in use
+    else
+        return 1 # Port is not in use
+    fi
+}
+
 install_software() {
   package_name="$1"
   file_to_detect="$2"
@@ -180,12 +193,14 @@ install_software() {
 install_xray() {
   DOWNLOAD_LINK="https://github.com/XTLS/Xray-core/releases/download/$INSTALL_VERSION/Xray-linux-$MACHINE.zip"
 
-  if ! curl -s -x "${PROXY}" -R -H 'Cache-Control: no-cache' -o "$ZIP_FILE" "$DOWNLOAD_LINK"; then
+  echo -e "${info} downloading $DOWNLOAD_LINK${normal}"
+
+  if ! curl -s -x "${PROXY}" -R -H 'Cache-Control: no-cache' -o "$ZIP_FILE" "$DOWNLOAD_LINK" -L; then
     echo -e "${error} Download failed! Please check your network or try again. ${normal}"
     return 1
   fi
 
-  if ! curl -s -x "${PROXY}" -sSR -H 'Cache-Control: no-cache' -o "$ZIP_FILE.dgst" "$DOWNLOAD_LINK.dgst"; then
+  if ! curl -s -x "${PROXY}" -sSR -H 'Cache-Control: no-cache' -o "$ZIP_FILE.dgst" "$DOWNLOAD_LINK.dgst" -L; then
     echo -e "${error} Download failed! Please check your network or try again. ${normal}"
     return 1
   fi
