@@ -181,16 +181,14 @@ install_xray() {
 
   echo -e "${info} Downloading Xray archive: $DOWNLOAD_LINK"
 
-  if ! curl -x "${PROXY}" -R -H 'Cache-Control: no-cache' -o "$ZIP_FILE" "$DOWNLOAD_LINK"; then
+  if ! curl -s -x "${PROXY}" -R -H 'Cache-Control: no-cache' -o "$ZIP_FILE" "$DOWNLOAD_LINK"; then
     echo -e "${error} Download failed! Please check your network or try again. ${normal}"
     return 1
   fi
 
-  return 0
-
   echo "Downloading verification file for Xray archive: $DOWNLOAD_LINK.dgst"
 
-  if ! curl -x "${PROXY}" -sSR -H 'Cache-Control: no-cache' -o "$ZIP_FILE.dgst" "$DOWNLOAD_LINK.dgst"; then
+  if ! curl -s -x "${PROXY}" -sSR -H 'Cache-Control: no-cache' -o "$ZIP_FILE.dgst" "$DOWNLOAD_LINK.dgst"; then
     echo -e ' ${error}} Download failed! Please check your network or try again. ${normal}'
     return 1
   fi
