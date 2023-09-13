@@ -41,6 +41,8 @@ IRAN_DAT_FILE=${IRAN_DAT_FILE:-$INSTALL_PATH/iran.dat}
 LOG_PATH=${LOG_PATH:-/var/log/shichain}
 INSTALL_USER=${INSTALL_USER:-nobody}
 
+mkdir -p "$INSTALL_PATH"
+
 IP="$(curl -s icanhazip.com)"
 
 # Two very important variables
@@ -258,8 +260,17 @@ EOF
 
 configure_outbound() {
 
-  read -rp "${info} inbound port? [21432]: ${normal}" d_port
-  d_port="${d_port:-21432}"
+  while true; do
+    read -rp "${info}Inbound port? [21432]: ${normal}" d_port
+    if [ -z "$d_port" ]; then
+      d_port=21432
+    fi
+    if port_in_use "$d_port"; then
+      echo "${error}Port $d_port is in use. Please choose a different port. ${normal}"
+    else
+      break
+    fi
+  done
 
   read -rp "${info} inbound uuid? [205b09fa-31a3-499b-8450-3114e83ad092]: ${normal}" d_id
   d_id="${d_id:-205b09fa-31a3-499b-8450-3114e83ad092}"
@@ -359,8 +370,18 @@ ENDOfMessage
 
 configure_inbound() {
 
-  read -rp "${info} client port? [9921]: ${normal}" i_port
-  i_port="${i_port:-9921}"
+
+  while true; do
+    read -rp "${info}Inbound port? [9921]: ${normal}" i_port
+    if [ -z "$i_port" ]; then
+      i_port=9921
+    fi
+    if port_in_use "$i_port"; then
+      echo -e "${error}Port $i_port is in use. Please choose a different port. ${normal}"
+    else
+      break
+    fi
+  done
 
   default_i_id=$(uuidgen)
   read -rp "${info} server uuid? [$default_i_id]: ${normal}" i_id
@@ -631,7 +652,7 @@ pre_checks() {
 main_menu() {
   banner
 
-  echo "${info}}"
+  echo "${info}"
   echo -e "\t 1. install local relay [iran]"
   echo -e "\t 2. install foreign outbound tunnel [foreign server]"
   echo -e "\t 3. install namizun"
@@ -674,7 +695,6 @@ install_xray_relay() {
   install_iran_dat
   install_xray_service
   start_xray
-
 
   echo -e "${info} ShiChain installed successfully! ${normal}"
 
