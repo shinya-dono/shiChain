@@ -635,6 +635,8 @@ main_menu() {
   echo -e "\t 1. install local relay [iran]"
   echo -e "\t 2. install foreign outbound tunnel [foreign server]"
   echo -e "\t 3. install namizun"
+  echo -e "\t 4. install bbr"
+  echo -e "\t 5. fix apt servers [asiatech]"
   echo
   echo -e "\t 0. exit"
   echo -e "${normal}"
@@ -650,6 +652,12 @@ main_menu() {
     ;;
   3)
     install_namizun
+    ;;
+  4)
+    install_bbr
+    ;;
+  5)
+    fix_asiatech
     ;;
   0)
     exit
