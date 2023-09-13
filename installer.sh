@@ -200,7 +200,7 @@ install_xray() {
   LOCALSUM=$(sha256sum "$ZIP_FILE" | awk '{printf $1}')
 
   if [[ "$CHECKSUM" != "$LOCALSUM" ]]; then
-    echo -e ' ${error} SHA256 check failed! Please check your network or try again. ${normal}'
+    echo -e "${error} SHA256 check failed! Please check your network or try again. ${normal}"
     return 1
   fi
 
