@@ -166,16 +166,16 @@ detect_user() {
 }
 
 port_in_use() {
-    local host="localhost"
-    local port="$1"
-    local timeout=1
+  local host="localhost"
+  local port="$1"
+  local timeout=1
 
-    # Try to establish a connection to the specified host and port
-    if (echo >/dev/tcp/$host/$port) &>/dev/null; then
-        return 0 # Port is in use
-    else
-        return 1 # Port is not in use
-    fi
+  # Try to establish a connection to the specified host and port
+  if (echo >/dev/tcp/$host/$port) &>/dev/null; then
+    return 0 # Port is in use
+  else
+    return 1 # Port is not in use
+  fi
 }
 
 install_software() {
@@ -229,6 +229,9 @@ install_xray() {
   echo -e "${info} Extract the ShiChain package to $TMP_DIRECTORY and prepare it for installation. ${normal}"
 
   install -m 755 "${TMP_DIRECTORY}/xray" "${XRAY_PATH}"
+  install -m 644 "${TMP_DIRECTORY}/geoip.dat" "${INSTALL_PATH}/geoip.dat"
+  install -m 644 "${TMP_DIRECTORY}/geosite.dat" "${INSTALL_PATH}/geosite.dat"
+
   chown -R "$INSTALL_USER_UID:$INSTALL_USER_GID" "$LOG_PATH/"
 
 }
@@ -380,7 +383,6 @@ ENDOfMessage
 
 configure_inbound() {
 
-
   while true; do
     read -rp "${info}Inbound port? [9921]: ${normal}" i_port
     if [ -z "$i_port" ]; then
@@ -394,10 +396,17 @@ configure_inbound() {
   done
 
   default_i_id=$(uuidgen)
-  read -rp "${info} server uuid? [$default_i_id]: ${normal}" i_id
+  read -rp "${info} client uuid? [$default_i_id]: ${normal}" i_id
   i_id="${d_id:-$default_i_id}"
 
-  read -rp "${info} server host? ${normal}" d_host
+  while true; do
+    read -rp "${info} server host? ${normal}" d_host
+    if ping -c 1 $d_host &> /dev/null; then
+      break
+    else
+      echo -e "${error} host is unreachable. ${normal}"
+    fi
+  done
 
   read -rp "${info} server port? [21432]: ${normal}" d_port
   d_port="${d_port:-21432}"
@@ -587,7 +596,7 @@ ENDOfMessage
 install_iran_dat() {
   if [[ ! -f "$IRAN_DAT_FILE" ]]; then
     echo -e "${info} Downloading Iran.dat ${normal}"
-    if ! curl -x "${PROXY}" -R -H 'Cache-Control: no-cache' -o "$IRAN_DAT_FILE" "https://github.com/MasterKia/iran-hosted-domains/releases/latest/download/iran.dat"; then
+    if ! curl -s -L -x "${PROXY}" -R -H 'Cache-Control: no-cache' -o "$IRAN_DAT_FILE" "https://github.com/MasterKia/iran-hosted-domains/releases/latest/download/iran.dat"; then
       echo -e "${error} Download failed! Please check your network or try again. ${normal}"
       return 1
     fi
@@ -596,7 +605,8 @@ install_iran_dat() {
 
 start_xray() {
   if [[ -f '/etc/systemd/system/shichain.service' ]]; then
-    systemctl start shichain
+    systemctl enable shichain
+    systemctl restart shichain
     sleep 1s
     if systemctl -q is-active shichain; then
       echo -e "${info}\t ShiChain started. ${normal}}"
@@ -632,7 +642,7 @@ fix_asiatech() {
 
 banner() {
 
-  clear
+  #  clear
 
   echo "${info}"
   echo -e " \t ███████╗██╗  ██╗██╗ ██████╗██╗  ██╗ █████╗ ██╗███╗   ██╗"
@@ -647,7 +657,7 @@ banner() {
 }
 
 pre_checks() {
-  if [ "$EUID" -e 0 ]; then
+  if [ "$EUID" -ne 0 ]; then
     echo "Please run as root"
     exit
   fi
@@ -718,8 +728,8 @@ install_xray_relay() {
   echo -e "${info} or scan the following QR code: ${normal}"
   echo
   echo -e "${warning}"
-  qrencode -t ansiutf8 <"vless://$i_id@$IP:$i_port?encryption=none&security=none&type=tcp&headerType=http&host=872r7f20.divarcdn.com%2C872r7f20.snappfood.ir%2C872r7f20.yjc.ir%2C872r7f20.digikala.com%2C872r7f20.tic.ir#ShiChan"
-
+  qrencode -m 2 -t utf8 <<< "vless://$i_id@$IP:$i_port?encryption=none&security=none&type=tcp&headerType=http&host=872r7f20.divarcdn.com%2C872r7f20.snappfood.ir%2C872r7f20.yjc.ir%2C872r7f20.digikala.com%2C872r7f20.tic.ir#ShiChan"
+  echo -e "${normal}"
   read -p "press any key to continue..." -n1 -s
   main_menu
 
