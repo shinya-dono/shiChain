@@ -180,22 +180,18 @@ install_software() {
 install_xray() {
   DOWNLOAD_LINK="https://github.com/XTLS/Xray-core/releases/download/$INSTALL_VERSION/Xray-linux-$MACHINE.zip"
 
-  echo -e "${info} Downloading Xray archive: $DOWNLOAD_LINK"
-
   if ! curl -s -x "${PROXY}" -R -H 'Cache-Control: no-cache' -o "$ZIP_FILE" "$DOWNLOAD_LINK"; then
     echo -e "${error} Download failed! Please check your network or try again. ${normal}"
     return 1
   fi
 
-  echo "Downloading verification file for Xray archive: $DOWNLOAD_LINK.dgst"
-
   if ! curl -s -x "${PROXY}" -sSR -H 'Cache-Control: no-cache' -o "$ZIP_FILE.dgst" "$DOWNLOAD_LINK.dgst"; then
-    echo -e ' ${error}} Download failed! Please check your network or try again. ${normal}'
+    echo -e "${error} Download failed! Please check your network or try again. ${normal}"
     return 1
   fi
 
   if [[ "$(cat "$ZIP_FILE".dgst)" == 'Not Found' ]]; then
-    echo -e ' ${error}} This version does not support verification. Please replace with another version. ${normal}'
+    echo -e "${error} This version does not support verification. Please replace with another version. ${normal}"
     return 1
   fi
 
