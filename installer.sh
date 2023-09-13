@@ -41,7 +41,7 @@ IRAN_DAT_FILE=${IRAN_DAT_FILE:-$INSTALL_PATH/iran.dat}
 LOG_PATH=${LOG_PATH:-/var/log/shichain}
 INSTALL_USER=${INSTALL_USER:-nobody}
 
-IP=$(curl -s icanhazip.com)
+IP="$(curl -s icanhazip.com)"
 
 # Two very important variables
 TMP_DIRECTORY="$(mktemp -d)"
