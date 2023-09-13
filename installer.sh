@@ -710,6 +710,7 @@ main_menu() {
 }
 
 install_xray_relay() {
+  pre_checks
   install_xray
   configure_inbound
   install_iran_dat
@@ -736,6 +737,7 @@ install_xray_relay() {
 }
 
 install_xray_outbound() {
+  pre_checks
   install_xray
   configure_outbound
   install_xray_service
@@ -761,5 +763,5 @@ install_namizun() {
   main_menu
 }
 
-pre_checks
+
 main_menu
