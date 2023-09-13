@@ -3,7 +3,7 @@ a Xray relay chaining auto installer
 
 ## Usage
 ```bash
-bash <(curl -sL https://raw.githubusercontent.com/shinya-dono/shi-chain/master/install.sh)
+bash <(curl -sL https://raw.githubusercontent.com/shinya-dono/shiChain/main/installer.sh)
 ```
 
 then simply choose your relay server and wait for the installation to finish.
